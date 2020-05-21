@@ -3,52 +3,51 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
-Window.size = [300, 300]
+Window.size = [300,300]
 
 import random
 
 class Home(BoxLayout):
-    escolha = ''
+    escolha = ""
     novo = False
-    aux = None
-
+    auxiliar = ""
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         Clock.schedule_once(self.start)
-
+        
     def start(self, evt):
-        self.ids.info.text = 'Clique em novo jogo para começar!'
-        self.ids.maquina.text = 'Aparecerá os números aqui!!'
-
-    def verificar(self):
-        if self.novo == True:
-            usuario = self.ids.usuario.text
-
-            if usuario == self.aux:
-                self.escolha = str(int(10 * random.random()))
-                self.aux = self.aux + self.escolha
-                self.ids.maquina.text = 'Número Escolhido -> %s' % self.escolha
-                self.ids.usuario.text = ''
-            else:
-                self.ids.info.text = f"""\
-Game Over! :(
-Você conseguiu {len(self.aux) - 1} pontos! \\0/
-"""
-                self.ids.maquina.text = ""
-                self.novo = False
-        else:
-            self.ids.info.text = 'Clique em novo jogo para começar!'
-
+        self.ids.info.text = "Pressione Novo Jogo para Iniciar!"
+        self.ids.maquina.text = "Eu sou a máquina"
+        
     def novo_jogo(self):
-        self.ids.usuario.text = ''
-        self.escolha = ''
-        self.aux = ''
+        self.ids.numero_usuario.text = ""
+        self.escolha = ""
         self.novo = True
-
+        self.auxiliar = ""
+        
         self.escolha = str(int(10 * random.random()))
-        self.aux = self.escolha
-        self.ids.info.text = f"Novo Jogo, boa sorte memorizador!"
-        self.ids.maquina.text = f"Número Escolhido -> {self.escolha}"
+        self.ids.maquina.text = "Número Escolhido -> " + self.escolha
+        self.ids.info.text = "Jogo iniciado!"
+
+    def enviar(self):
+        if self.novo == True:
+            numero_usuario = self.ids.numero_usuario
+
+            self.auxiliar += self.escolha
+            
+            if numero_usuario.text == self.auxiliar:
+                print("É Igual!")
+                self.escolha = str(int(10 * random.random()))
+                self.ids.info.text = "Você acertou!"
+                self.ids.maquina.text = "Número Escolhido -> " + self.escolha
+                numero_usuario.text = ''
+            else:
+                print("É diferente")
+                self.ids.info.text = f"Você errou! Mas acertou {len(self.auxiliar) - 1}"
+                self.ids.maquina.text = "Foi um prazer brincar com você"
+                numero_usuario.text = ''
+                self.novo = False
 
 class MainApp(App):
     title = "Memorizador Numérico"
@@ -56,17 +55,18 @@ class MainApp(App):
     def build(self):
         return Builder.load_string("""
 Home:
-    orientation = 'vertical'
-    padding: dp(50)
-    spacing: dp(10)
+    orientation: "vertical"
+    padding: 30
+    spacing: 10
     Label:
         id: info
     Label:
         id: maquina
     TextInput:
-        id: usuario
+        id: numero_usuario
         hint_text: "Resposta"
     BoxLayout:
+        orientation: "horizontal"
         Button:
             text: "Novo Jogo"
             on_release:
@@ -74,7 +74,7 @@ Home:
         Button:
             text: "Enviar"
             on_release:
-                root.verificar()
+                root.enviar()
 """)
 
 MainApp().run()
